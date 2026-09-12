@@ -3,6 +3,7 @@ export const KEYS = {
   SETTINGS: 'npat-arena:settings',
   HISTORY: 'npat-arena:history',
   SOUND: 'npat-arena:sound',
+  ACHIEVEMENTS: 'npat-arena:achievements',
 };
 
 export function load(key, fallback) {

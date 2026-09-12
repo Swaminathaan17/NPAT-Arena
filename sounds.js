@@ -34,6 +34,11 @@ export const sounds = {
   win: () => { tone(523, 0.15, 'sine', 0.22); tone(659, 0.15, 'sine', 0.22, 0.1); tone(784, 0.15, 'sine', 0.22, 0.2); tone(1047, 0.3, 'sine', 0.22, 0.3); },
   challenge: () => { tone(330, 0.1, 'triangle', 0.18); tone(660, 0.15, 'triangle', 0.18, 0.12); },
   pop: () => tone(660, 0.05, 'sine', 0.1),
+  roundStart: () => { tone(392, 0.08, 'sine', 0.15); tone(523, 0.1, 'sine', 0.17, 0.08); tone(659, 0.2, 'sine', 0.17, 0.16); },
+  valid: () => { tone(587, 0.09, 'triangle', 0.15); tone(784, 0.14, 'triangle', 0.15, 0.07); },
+  move: () => tone(987, 0.05, 'sine', 0.08),
+  achievement: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.16, 'sine', 0.17, i * 0.09)); tone(1568, 0.3, 'sine', 0.13, 0.38); },
+  tie: () => { tone(440, 0.14, 'sine', 0.16); tone(415, 0.22, 'sine', 0.16, 0.12); },
 };
 
 export function setMuted(v) { _muted = v; }
