@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "node server/index.js",
-    "test": "node --test src/tests/validation.test.js src/tests/storage.test.js server/room.test.js server/integration.test.js"
+    "test": "node --test src/tests/identity.test.js src/tests/validation.test.js src/tests/storage.test.js server/room.test.js server/integration.test.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

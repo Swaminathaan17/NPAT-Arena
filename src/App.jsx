@@ -4,6 +4,7 @@ import {
   ArrowRight, Check, Clock3, Copy, Crown, LogOut, RotateCcw, Sparkles, Volume2, VolumeX, Users,
 } from 'lucide-react';
 import { CATEGORIES, CATEGORY_KEYS } from './game/categories.js';
+import { viewerIdFromState } from './game/identity.js';
 import { connect } from './net/socket.js';
 import { load, remove, save } from './utils/storage.js';
 import { setMuted, sounds } from './utils/sounds.js';
@@ -262,7 +263,7 @@ function Final({ room, selfId, me, onPlayAgain, onLeave }) {
 }
 
 export default function App() {
-  const [playerId] = useState(() => load(LOCAL_KEYS.PLAYER_ID, null) || makeId());
+  const [playerId, setPlayerId] = useState(() => load(LOCAL_KEYS.PLAYER_ID, null) || makeId());
   const [name, setName] = useState(() => load(LOCAL_KEYS.NAME, ''));
   const [muted, setMutedState] = useState(() => Boolean(load(LOCAL_KEYS.SOUND, false)));
   const [history, setHistory] = useState(() => { const h = load(LOCAL_KEYS.HISTORY, []); return Array.isArray(h) ? h : []; });
@@ -285,7 +286,13 @@ export default function App() {
     socket.on('connect', () => setStatus('connected'));
     socket.on('disconnect', () => setStatus('disconnected'));
     socket.on('connect_error', () => setStatus('error'));
-    socket.on('room:state', (state) => { setRoom(state); setError(null); if (state?.code) save(LOCAL_KEYS.CODE, state.code); });
+    socket.on('room:state', (state) => {
+      setRoom(state);
+      setError(null);
+      const selfId = viewerIdFromState(state);
+      if (selfId) setPlayerId(selfId);
+      if (state?.code) save(LOCAL_KEYS.CODE, state.code);
+    });
     return () => { socket.close(); socket.stop?.(); };
   }, []);
 
@@ -301,7 +308,15 @@ export default function App() {
   const toastError = useCallback((res) => {
     if (!res.ok && res.error) setError(res.error.message);
   }, []);
-  const applyState = useCallback((res) => { if (res.ok && res.state) { setRoom(res.state); setError(null); remainInRoom.current = res.state.code; } }, []);
+  const applyState = useCallback((res) => {
+    if (res.ok && res.state) {
+      setRoom(res.state);
+      setError(null);
+      remainInRoom.current = res.state.code;
+      const selfId = viewerIdFromState(res.state);
+      if (selfId) setPlayerId(selfId);
+    }
+  }, []);
 
   const me = useMemo(() => (room ? room.players.find((p) => p.id === playerId) || null : null), [room, playerId]);
 
