@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LIMITS, MODES, clampInt, getCategories, roundWinnerId, sanitizeSettings, scoreRound } from './game.js';
-import { canonicalize, validateAnswer } from './validation.js';
-import { computeStats, recordGame } from './stats.js';
+import { LIMITS, MODES, clampInt, getCategories, roundWinnerId, sanitizeSettings, scoreRound } from '../game/game.js';
+import { canonicalize, validateAnswer } from '../game/validation.js';
+import { computeStats, recordGame } from '../game/stats.js';
 
 test('normalizes case whitespace accents and punctuation', () => { assert.equal(canonicalize('  NÉw...   York  '), 'new york'); assert.equal(canonicalize('U.S.A.'), 'usa'); });
 test('accepts valid answers across multiple letters and categories', () => { [['A','animal','Alpaca'],['B','place','Berlin'],['K','name','Karthik'],['Z','thing','Zipper']].forEach(([l,c,a]) => assert.equal(validateAnswer(a,c,l).valid,true)); });

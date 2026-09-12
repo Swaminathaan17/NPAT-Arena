@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ACHIEVEMENTS, evaluateCareer, mergeAchievements } from './achievements.js';
+import { ACHIEVEMENTS, evaluateCareer, mergeAchievements } from '../utils/achievements.js';
 
 test('achievements list is 9 unique entries with display metadata', () => {
   assert.equal(ACHIEVEMENTS.length, 9);

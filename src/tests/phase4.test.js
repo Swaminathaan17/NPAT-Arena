@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { computeHighlights, scoreExplanation, scoreRound, standingsAfter, suddenDeathEnd } from './game.js';
-import { computeCareerStats, computeStats, mergePlayerStats, recordGame } from './stats.js';
+import { computeHighlights, scoreExplanation, scoreRound, standingsAfter, suddenDeathEnd } from '../game/game.js';
+import { computeCareerStats, computeStats, mergePlayerStats, recordGame } from '../game/stats.js';
 
 test('suddenDeathEnd: survivor, lone survivor regardless of caps, mass tie, empty', () => {
   assert.deepEqual(suddenDeathEnd(['a']), { finished: true, survivorId: 'a' });

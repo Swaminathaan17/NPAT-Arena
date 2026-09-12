@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { KEYS, load, loadSettings, remove, save } from './storage.js';
+import { KEYS, load, loadSettings, remove, save } from '../utils/storage.js';
 
 test('storage ops recover gracefully in environments without localStorage', () => {
   assert.equal(load('missing-key', 'fb'), 'fb');

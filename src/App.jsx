@@ -1,12 +1,16 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, BarChart3, Check, ChevronLeft, ChevronRight, Clock3, Crown, Flame, Gavel, Lock, Medal, RotateCcw, Shield, Sparkles, Target, Trash2, TrendingUp, Trophy, Unlock, User, Users, Volume2, VolumeX, X, Zap } from 'lucide-react';
-import { CATEGORY_DEFS, LETTERS, MODES, PLAYER_COLORS, ROUND_OPTIONS, SCORING_PROFILES, THEMES, TIMER_OPTIONS, computeHighlights, getCategories, randomLetter, roundWinnerId, sanitizeSettings, scoreExplanation, scoreRound, standingsAfter, suddenDeathEnd } from './game';
-import { useTimer } from './useTimer';
-import { KEYS, load, loadSettings, save } from './storage';
-import { MAX_GAMES, computeCareerStats, recordGame } from './stats';
-import { ACHIEVEMENTS, mergeAchievements } from './achievements';
-import { setMuted as setSoundMuted, sounds } from './sounds';
+import { CATEGORY_DEFS, LETTERS, MODES, PLAYER_COLORS, ROUND_OPTIONS, SCORING_PROFILES, THEMES, TIMER_OPTIONS, computeHighlights, getCategories, randomLetter, roundWinnerId, sanitizeSettings, scoreExplanation, scoreRound, standingsAfter, suddenDeathEnd } from './game/game';
+import { KEYS, load, loadSettings, save } from './utils/storage';
+import { MAX_GAMES, computeCareerStats, recordGame } from './game/stats';
+import { ACHIEVEMENTS, mergeAchievements } from './utils/achievements';
+import { setMuted as setSoundMuted, sounds } from './utils/sounds';
+import Button from './components/Button';
+import Avatar from './components/Avatar';
+import Shell from './components/Shell';
+import Modal from './components/Modal';
+import RoundTimer from './components/RoundTimer';
 
 const colors = PLAYER_COLORS;
 const medalTone = ['#ffe08a', '#c8cede', '#e3a06a'];
@@ -25,9 +29,6 @@ function useStored(key, value) {
 
 const ACH_ICONS = { Trophy, Target, Zap, Sparkles, Flame, Gavel, Shield, Medal, TrendingUp };
 
-function Button({ children, variant = 'primary', className = '', ...props }) { return <button className={`button ${variant} ${className}`} {...props}>{children}</button>; }
-function Avatar({ player, small = false }) { return <span className={`avatar ${small ? 'small' : ''}`} style={{ background: player.color }}>{String(player.name || '?').trim().slice(0, 1).toUpperCase() || '?'}</span>; }
-function Shell({ children }) { return <main className="shell"><div className="ambient a"/><div className="ambient b"/>{children}</main>; }
 function modeOf(key) { return MODES.find((m) => m.key === key) || MODES[0]; }
 
 const ordinal = (n) => {
@@ -37,56 +38,6 @@ const ordinal = (n) => {
   return `${n}${suffix}`;
 };
 const fmtClock = (sec) => { if (sec == null) return '—'; const m = Math.floor(sec / 60); const s = sec % 60; return `${m}:${String(s).padStart(2, '0')}`; };
-
-function EscClose({ onClose }) {
-  useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
-  return null;
-}
-
-function Modal({ title, wide = false, onClose, children }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const target = ref.current?.querySelector('[autofocus], button');
-    if (target && target.focus) target.focus();
-  }, []);
-  return <div className="modal-wrap" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-    <EscClose onClose={onClose}/>
-    <div className={`modal glass ${wide ? 'wide' : ''}`} ref={ref}>
-      <button className="modal-x" onClick={onClose} aria-label="Close"><X size={18}/></button>
-      <h3>{title}</h3>
-      {children}
-    </div>
-  </div>;
-}
-
-const RADIUS = 29;
-const CIRC = 2 * Math.PI * RADIUS;
-function TimerRing({ time, total }) {
-  const pct = total ? Math.min(time / total, 1) : 1;
-  const color = time <= 5 ? 'var(--danger)' : time <= 15 ? 'var(--warning)' : 'var(--accent)';
-  return <div className={`timer-ring ${time <= 5 ? 'critical' : time <= 15 ? 'warning' : ''}`} role="timer" aria-live="off" aria-label={`${time} seconds left`}>
-    <svg viewBox="0 0 72 72" aria-hidden="true">
-      <circle className="timer-ring-track" cx="36" cy="36" r={RADIUS}/>
-      <circle className="timer-ring-progress" cx="36" cy="36" r={RADIUS} style={{ stroke: color, strokeDasharray: CIRC, strokeDashoffset: CIRC * (1 - pct) }}/>
-    </svg>
-    <span className="timer-ring-time">{time}</span>
-  </div>;
-}
-
-function RoundTimer({ total, active, onComplete, onTick }) {
-  const left = useTimer(total, active, onComplete);
-  const prev = useRef(left);
-  useEffect(() => {
-    if (left < prev.current && left > 0 && left <= 5) sounds.tick();
-    prev.current = left;
-    onTick(left);
-  }, [left, onTick]);
-  return <div className="timer-chip"><TimerRing time={left} total={total}/><span className="timer-chip-label">Seconds<br/>left</span></div>;
-}
 
 function Landing({ begin, onStats, history }) {
   const reduce = useReducedMotion();
