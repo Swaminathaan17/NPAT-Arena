@@ -3,36 +3,37 @@ const words = {
   place: `africa agra alaska algeria america amsterdam antarctica argentina arizona asia athens atlanta australia austria bangalore bangkok beijing belgium berlin bihar boston brazil brooklyn california canada cape town chennai chicago china colorado colombo copenhagen delhi denmark dubai dublin egypt england europe finland florida france goa germany glasgow greece gujarat hawaii hong kong hyderabad iceland india indonesia ireland italy jaipur japan kerala kolkata kyoto ladakh lisbon london los angeles madrid manchester maharashtra mexico miami mumbai moscow nepal new delhi new york new zealand nigeria norway paris peru philippines portugal pune qatar rajasthan rome russia scotland seoul singapore south africa spain sydney sweden switzerland tamil nadu texas thailand tokyo toronto turkey uae uk usa utah vancouver venice vietnam washington`,
   animal: `aardvark albatross alligator alpaca ant anteater antelope ape badger bat bear beaver bee beetle bison buffalo butterfly camel cat caterpillar cheetah chicken chimpanzee cobra cockroach cow coyote crab crocodile crow deer dinosaur dog dolphin donkey dove dragonfly duck eagle eel elephant falcon ferret finch fish flamingo fly fox frog gazelle gecko gerbil giraffe goat goldfish gorilla grasshopper guinea hamster hare hawk hedgehog hippopotamus horse hyena iguana jackal jaguar jellyfish kangaroo koala ladybug leopard lion lizard llama lobster lynx manatee meerkat mole monkey moose mosquito mouse mule octopus orangutan ostrich otter owl panda panther parrot peacock pelican penguin pig pigeon pony porcupine rabbit raccoon rat raven rhinoceros rooster salamander scorpion seahorse seal shark sheep skunk sloth snail snake sparrow spider squid squirrel swan tiger toad turkey turtle vulture walrus weasel whale wolf wombat woodpecker yak zebra`,
   thing: `accordion airplane album anchor apple apron backpack bag balloon ball battery bed bell bicycle blanket blender book bottle bowl box bracelet brush bucket bus camera candle car carpet chair charger chessboard clock clothes coat coin comb computer couch cup curtain desk dictionary door drum earphones fan flashlight flower folder fork frame fridge guitar hammer hat headphones helmet iron jar jacket kettle keyboard knife lamp laptop lock magazine map marker mattress microphone mirror mobile monitor mug notebook package paint pan pen pencil phone piano picture pillow plate printer purse radio remote ring ruler scissors screen shoe skateboard soap spoon suitcase table tablet television tent ticket toaster toothbrush towel toy train umbrella vacuum vase wallet watch window wrench zipper`,
-  food: `apple apricot avocado bacon bagel banana barbecue beans beef berry biscuit bread broccoli burger burrito butter cabbage cake candy carrot casserole cauliflower celery cereal cheese cherry chicken chili chocolate chowder chutney cinnamon cookie corn crab cranberry cream croissant cucumber curry custard dates dessert donut dumpling egg eggplant falafel fig fish flan french fries fried rice fruit garlic grapes gravy guacamole hamburger honey hot dog ice cream jam jelly kale kebab kiwi lasagna leek lemon lentils lettuce lime lobster macaroni mango meat meatball melon mushroom noodles nut oatmeal olive onion omelet orange oyster pancake papaya pasta peach peanut pear peas pepper pickle pie pineapple pistachio pizza plum pomegranate porridge potato pretzel pudding pumpkin quinoa radish raisin raspberry ravioli rice risotto salad salmon sandwich sauce sausage seafood seaweed soup spinach squash steak strawberry sugar sushi sweet potato syrup taco tamale tart tofu tomato tortilla tuna turkey turnip waffle watermelon yogurt yam zucchini`,
-  drink: `ale beer champagne cider cocoa coconut water coffee cola eggnog espresso ginger ale hot chocolate juice lassi latte lemonade limeade lager milkshake mojito oolong orange juice porter punch rum sake smoothie soda soy milk sparkling water sprite stout sweet tea tea tequila tonic vodka water whiskey whisky wine yerba mate`,
-  profession: `accountant actor actress architect artist astronaut athlete author baker banker barber bartender blacksmith butcher carpenter cashier chef chemist cleaner clerk coach comedian consultant cook dancer dentist designer director doctor driver economist editor electrician engineer entrepreneur farmer firefighter florist footballer gardener geologist graphic designer guard hairdresser janitor jeweler judge lecturer librarian lifeguard manager mason mathematician mechanic messenger model musician nurse nutritionist officer optician painter pharmacist photographer physicist pilot plumber poet police officer politician porter postman priest professor programmer psychologist publisher radiologist receptionist researcher sailor scientist sculptor seamstress secretary singer soldier surgeon tailor teacher technician therapist translator truck driver usher veterinarian waiter watchmaker welder writer zookeeper`,
 };
 const aliases = {
   name: { muhammad: 'mohammed', mohammad: 'mohammed' },
   place: { 'united states': 'usa', 'united kingdom': 'uk', nyc: 'new york', bombay: 'mumbai', madras: 'chennai', calcutta: 'kolkata' },
   animal: { kitty: 'cat', puppy: 'dog', bunny: 'rabbit', fishes: 'fish' },
   thing: { tv: 'television', smartphone: 'phone', bike: 'bicycle', automobile: 'car', sofa: 'couch' },
-  food: { fries: 'french fries', 'french fry': 'french fries', icecream: 'ice cream', hotdog: 'hot dog', donut: 'doughnut' },
-  drink: { coke: 'cola', soda: 'cola', pepsi: 'cola', '7up': 'lemonade' },
-  profession: { cop: 'police officer', doc: 'doctor', 'police man': 'police officer' },
 };
 const entries = Object.fromEntries(Object.entries(words).map(([key, value]) => [key, new Set(value.split(' '))]));
-const label = (key) => ({ name: 'a name', place: 'a place', animal: 'an animal', thing: 'a thing', food: 'food', drink: 'a drink', profession: 'a job' }[key]);
+export const labelOf = { name: 'a name', place: 'a place', animal: 'an animal', thing: 'a thing' };
+
 export const canonicalize = (value = '') => value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').trim().toLocaleLowerCase().replace(/[._]/g, '').replace(/[^\p{L}\p{N}\s'-]/gu, '').replace(/\s+/g, ' ');
+
 const singular = (word) => word.endsWith('ies') && word.length > 4 ? `${word.slice(0, -3)}y` : word.endsWith('es') && word.length > 4 ? word.slice(0, -2) : word.endsWith('s') && !word.endsWith('ss') && word.length > 3 ? word.slice(0, -1) : word;
+
 export const duplicateKey = (value = '') => { const normalized = canonicalize(value); const parts = normalized.split(' '); return [...parts.slice(0, -1), singular(parts.at(-1) || '')].join(' '); };
+
 const known = (category, value) => { const candidate = aliases[category]?.[value] || value; const last = candidate.split(' ').at(-1); return entries[category].has(candidate) || entries[category].has(last) || entries[category].has(singular(last)); };
 const plausibleName = (value) => /^[\p{L}][\p{L}' -]{1,48}$/u.test(value) && value.split(' ').length <= 3;
 const plausiblePlace = (value) => /(?:city|town|ville|nagar|pur|pura|abad|stan|land|island|mount|lake|river)$/u.test(value);
-const plausibleFood = (value) => /(?:pie|soup|shake|cake|juice|tea|water|curry|salad|bread|cheese|sauce|stew|pudding|muffin|cookie|fries|toast|roll|bun|pasta|rice|noodles|skewer|taco|milk|flakes|dip|chips|fry)$/u.test(value);
-const plausibleDrink = (value) => /(?:juice|tea|water|ade|cola|soda|beer|wine|whiskey|whisky|champagne|shake|smoothie|lassi|milk|coffee|espresso|latte|cider|cocoa|tonic|sake|rum|vodka|gin|punch|aid|brew|soda)$/u.test(value);
-const plausibleProfession = (value) => /(?:ist|or|er|ian|ant|man|woman|maker|keeper|tender)$/u.test(value);
+
+const CATEGORY_KEYS = ['name', 'place', 'animal', 'thing'];
+
 export function validateAnswer(value, category, letter) {
-  const normalized = canonicalize(value); const expected = canonicalize(letter).charAt(0);
-  if (!normalized) return { valid: false, reason: 'Enter an answer to score points.', normalized };
-  if (normalized.charAt(0) !== expected) return { valid: false, reason: `Must start with ${letter.toUpperCase()}.`, normalized };
-  const matches = Object.keys(entries).filter((key) => known(key, normalized)); const conflicts = matches.filter((key) => key !== category);
-  if (conflicts.length && !matches.includes(category)) return { valid: false, reason: `That looks like ${label(conflicts[0])}, not ${label(category)}.`, normalized };
-  if (matches.includes(category) || (category === 'name' && plausibleName(normalized)) || (category === 'place' && plausiblePlace(normalized)) || (category === 'thing' && normalized.length > 1) || (category === 'food' && plausibleFood(normalized)) || (category === 'drink' && plausibleDrink(normalized)) || (category === 'profession' && plausibleProfession(normalized))) return { valid: true, reason: '', normalized };
-  return { valid: false, reason: `We couldn't recognize that as ${label(category)}.`, normalized };
+  const normalized = canonicalize(value);
+  const expected = canonicalize(letter).charAt(0);
+  if (!normalized) return { valid: false, code: 'blank', reason: 'Enter an answer to score points.', normalized };
+  if (normalized.charAt(0) !== expected) return { valid: false, code: 'wrong-letter', reason: `Must start with ${letter.toUpperCase()}.`, normalized };
+  if (!CATEGORY_KEYS.includes(category)) return { valid: false, code: 'invalid', reason: `Unknown category.`, normalized };
+  const matches = CATEGORY_KEYS.filter((key) => known(key, normalized));
+  const conflicts = matches.filter((key) => key !== category);
+  if (conflicts.length && !matches.includes(category)) return { valid: false, code: 'invalid', reason: `That looks like ${labelOf[conflicts[0]]}, not ${labelOf[category]}.`, normalized };
+  if (matches.includes(category) || (category === 'name' && plausibleName(normalized)) || (category === 'place' && plausiblePlace(normalized)) || (category === 'thing' && normalized.length > 1)) return { valid: true, code: 'valid', reason: '', normalized };
+  return { valid: false, code: 'invalid', reason: `We couldn't recognize that as ${labelOf[category]}.`, normalized };
 }
