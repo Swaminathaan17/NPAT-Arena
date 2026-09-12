@@ -156,8 +156,8 @@ function Setup({ settings, setSettings, start, back }) {
         <div className="lobby-summary-item"><span>Categories</span><b>{getCategories(settings.theme, settings.categories).length}</b></div>
       </div>
       <div className="lobby-match"><span>Match preview</span><b>{settings.playerCount} Players • {modeOf(settings.mode).name} • {settings.rounds} Rounds • {settings.timer ? `${settings.timer}s` : 'No timer'}</b></div>
-      <p className={`ready-note ${valid ? 'ready' : ''}`}>{valid ? 'Ready to play.' : 'Give every player a unique name to begin.'}</p>
-      <Button className="start" onClick={() => { setTouched(true); if (valid) start(); }}>START GAME <ArrowRight size={18}/></Button>
+      <p className={`ready-note ${!invalid ? 'ready' : ''}`}>{!invalid ? 'Ready to play.' : 'Give every player a unique name to begin.'}</p>
+      <Button className="start" onClick={() => { setTouched(true); if (!invalid) start(); }}>START GAME <ArrowRight size={18}/></Button>
     </div>
   </section></Shell>;
 }
